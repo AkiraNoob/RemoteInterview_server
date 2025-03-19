@@ -1,0 +1,11 @@
+{
+  "SecuritySettings": {
+    "Provider": "Jwt",
+    "RequireConfirmedAccount": false,
+    "JwtSettings": {
+      "Key": "NguyenDucPhuong",
+      "TokenExpirationInMinutes": 15,
+      "RefreshTokenExpirationInDays": 7
+    }
+  }
+}
