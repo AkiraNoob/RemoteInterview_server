@@ -11,3 +11,4 @@ public class Meeting : AuditableEntity, IAggregateRoot
     public virtual ICollection<UserMeeting> UserMeetings { get; set; }
     public virtual ICollection<Message> Messages { get; set; }
 }
+x
