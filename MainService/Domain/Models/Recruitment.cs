@@ -28,4 +28,5 @@ public class Recruitment(Guid companyId,
 
     public virtual ICollection<Meeting> Meetings { get; set; }
     public virtual ICollection<UserRecruitment> UserRecruitments { get; set; }
+    public virtual ICollection<RecruitmentTag> RecruitmentTags { get; set; }
 }

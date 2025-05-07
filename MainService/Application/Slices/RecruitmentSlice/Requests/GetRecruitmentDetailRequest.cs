@@ -31,7 +31,7 @@ public class GetRecruitmentDetailHandler : IRequestHandler<GetRecruitmentDetailR
     public async Task<RecruitmentDTO> Handle(GetRecruitmentDetailRequest request, CancellationToken cancellationToken)
     {
         var recruitment = await _recruitmentRepository
-            .FirstOrDefaultAsync(new RecruitmentByIdSpec(request.RecruitmentId), cancellationToken) ?? throw new NotFoundException("Recruitment not found");
+            .FirstOrDefaultAsync(new GetRecruitmentByIdSpec(request.RecruitmentId), cancellationToken) ?? throw new NotFoundException("Recruitment not found");
 
         return recruitment.Adapt<RecruitmentDTO>();
     }

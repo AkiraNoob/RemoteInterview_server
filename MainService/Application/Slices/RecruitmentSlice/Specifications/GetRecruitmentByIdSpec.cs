@@ -3,9 +3,9 @@ using MainService.Domain.Models;
 
 namespace MainService.Application.Slices.RecruitmentSlice.Specifications;
 
-public class RecruitmentByIdSpec : Specification<Recruitment>
+public class GetRecruitmentByIdSpec : Specification<Recruitment>
 {
-    public RecruitmentByIdSpec(Guid recruitmentId)
+    public GetRecruitmentByIdSpec(Guid recruitmentId)
     {
         Query.Where(u => u.Id == recruitmentId);
     }

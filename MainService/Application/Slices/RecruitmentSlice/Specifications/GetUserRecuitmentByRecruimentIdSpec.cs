@@ -3,9 +3,9 @@ using MainService.Domain.Models;
 
 namespace MainService.Application.Slices.RecruitmentSlice.Specifications;
 
-public class UserRecuitmentByRecruimentIdSpec : Specification<UserRecruitment>
+public class GetUserRecuitmentByRecruimentIdSpec : Specification<UserRecruitment>
 {
-    public UserRecuitmentByRecruimentIdSpec(string recruitmentId)
+    public GetUserRecuitmentByRecruimentIdSpec(string recruitmentId)
     {
         Query
             .Include(u => u.AppliedCv)

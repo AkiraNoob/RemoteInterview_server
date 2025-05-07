@@ -39,6 +39,7 @@
 	  <Folder Include="Application\Request\" />
 	  <Folder Include="Application\Response\" />
 	  <Folder Include="Application\Slices\RecruitmentSlice\Interfaces\" />
+	  <Folder Include="Application\Slices\TagSlice\DTOs\" />
 	  <Folder Include="Presentation\DTOs\" />
 	  <Folder Include="Presentation\Validation\" />
 	</ItemGroup>
