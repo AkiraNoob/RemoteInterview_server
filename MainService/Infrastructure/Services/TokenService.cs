@@ -18,22 +18,16 @@ using System.Text;
 
 namespace MainService.Infrastructure.Services;
 
-public class TokenService : ITokenService
+public class TokenService(
+    UserManager<ApplicationUser> userManager,
+    IOptions<JwtSettings> jwtSettings,
+    ApplicationDbContext dbContext
+        ) : ITokenService
 {
-    private readonly JwtSettings _jwtSettings;
-    private readonly ApplicationDbContext _dbContext;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private readonly ApplicationDbContext _dbContext = dbContext;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-    public TokenService(
-        UserManager<ApplicationUser> userManager,
-        IOptions<JwtSettings> jwtSettings,
-        ApplicationDbContext dbContext
-        )
-    {
-        _userManager = userManager;
-        _jwtSettings = jwtSettings.Value;
-        _dbContext = dbContext;
-    }
     public async Task<TokenDTO> GetTokenAsync(TokenRequest request, CancellationToken cancellationToken)
     {
         var user = await _dbContext.Users.FilterByUserIdentifier(request.Email).FirstOrDefaultAsync(cancellationToken)
@@ -48,7 +42,7 @@ public class TokenService : ITokenService
 
         var user = await _userManager.FindByIdAsync(userId) ?? throw new UnauthorizedException("User not found");
 
-        var userToken = await _dbContext.Tokens.FirstOrDefaultAsync(x => x.UserId == user.Id.ToString() && x.RefreshToken == request.RefreshToken, cancellationToken) ?? throw new UnauthorizedException("Refresh token not found");
+        var userToken = await _dbContext.Token.FirstOrDefaultAsync(x => x.UserId == user.Id.ToString() && x.RefreshToken == request.RefreshToken, cancellationToken) ?? throw new UnauthorizedException("Refresh token not found");
         if (userToken.Expires <= DateTime.UtcNow)
         {
             await _dbContext.SaveChangesAsync();
@@ -89,7 +83,7 @@ public class TokenService : ITokenService
             Expires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays),
         };
 
-        await _dbContext.Tokens.AddAsync(userToken);
+        await _dbContext.Token.AddAsync(userToken);
         await _dbContext.SaveChangesAsync();
 
         return new TokenDTO(Token: token, RefreshToken: token, RefreshTokenExpiryTime: DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays));

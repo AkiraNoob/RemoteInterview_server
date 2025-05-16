@@ -14,11 +14,11 @@ using Microsoft.EntityFrameworkCore;
 namespace MainService.Infrastructure.Services;
 
 public class UserService(
-       ICacheService cache,
+    ICacheService cache,
     ApplicationDbContext db,
     UserManager<ApplicationUser> userManager,
     RoleManager<ApplicationRole> roleManager
-    ) : IUserService
+        ) : IUserService
 {
     public async Task<string?> GetUserId(string userIdentifier, CancellationToken cancellationToken = default)
     {
@@ -86,5 +86,12 @@ public class UserService(
              .Where(x => emailIds.Contains(x.Email))
              .ProjectToType<UserDetailDTO>()
              .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> CheckUserExisted(string userId, CancellationToken cancellationToken = default)
+    {
+        var user = await db.Users.Where(x => x.Id == userId).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+        return user != null;
     }
 }

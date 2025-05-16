@@ -8,7 +8,8 @@ public static class Startup
     public static IServiceCollection AddServices(this IServiceCollection services) =>
         services
             .AddServices(typeof(ITransientService), ServiceLifetime.Transient)
-            .AddServices(typeof(IScopedService), ServiceLifetime.Scoped);
+            .AddServices(typeof(IScopedService), ServiceLifetime.Scoped)
+            .AddServices(typeof(ISingletonService), ServiceLifetime.Singleton);
 
     public static IServiceCollection AddServices(this IServiceCollection services, Type interfaceType, ServiceLifetime lifetime)
     {

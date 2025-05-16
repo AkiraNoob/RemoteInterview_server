@@ -10,45 +10,38 @@ namespace MainService.Application.Slices.RecruitmentSlice.Requests;
 
 public class ApplyRecruimentRequest : IRequest<Guid>
 {
-    public Guid UserId { get; set; }
     public Guid RecruitmentId { get; set; }
     public IFormFile? CV { get; set; }
     public bool UsePreloadedCV { get; set; } = false;
 
-    public ApplyRecruimentRequest(Guid userId, Guid recruitmentId, IFormFile? cV, bool userPreloadedCV)
+    public ApplyRecruimentRequest(Guid recruitmentId, IFormFile? cV, bool userPreloadedCV)
     {
-        UserId = userId;
         RecruitmentId = recruitmentId;
         CV = cV;
         UsePreloadedCV = userPreloadedCV;
     }
 }
 
-public class ApplyRecruitmentHandler : IRequestHandler<ApplyRecruimentRequest, Guid>
+public class ApplyRecruitmentHandler(
+    IRepository<UserRecruitment> userRecruitmentRepository,
+    ICurrentUser currentUser,
+    IUserService userService,
+    IStorageService storageService
+        ) : IRequestHandler<ApplyRecruimentRequest, Guid>
 {
-    private readonly IRepository<UserRecruitment> _userRecruitmentRepository;
+    private readonly IRepository<UserRecruitment> _userRecruitmentRepository = userRecruitmentRepository;
     private readonly IRepository<File> _fileRepository;
-    private readonly IUserService _userService;
-    private readonly IStorageService _storageService;
-
-    public ApplyRecruitmentHandler(
-        IRepository<UserRecruitment> userRecruitmentRepository,
-        IUserService userService,
-        IStorageService storageService
-        )
-    {
-        _userService = userService;
-        _userRecruitmentRepository = userRecruitmentRepository;
-        _storageService = storageService;
-    }
+    private readonly ICurrentUser _currentUser = currentUser;
+    private readonly IUserService _userService = userService;
+    private readonly IStorageService _storageService = storageService;
 
     public async Task<Guid> Handle(ApplyRecruimentRequest request, CancellationToken cancellationToken)
     {
-        var userRecruitment = new UserRecruitment(request.UserId, request.RecruitmentId);
+        var userRecruitment = new UserRecruitment(_currentUser.GetUserId(), request.RecruitmentId);
 
         if (request.UsePreloadedCV)
         {
-            var user = await _userService.GetUserDetail(request.UserId.ToString(), cancellationToken);
+            var user = await _userService.GetUserDetail(_currentUser.GetUserId().ToString(), cancellationToken);
             if (user.CV != null)
             {
                 userRecruitment.FileId = user.CV.FileId;

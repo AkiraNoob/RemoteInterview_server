@@ -1,6 +1,7 @@
 using AuthService.Domain.Models;
 using MainService.Application.Interfaces;
 using MainService.Domain.Models;
+using MainService.Domain.Models.Streaming;
 using MainService.Infrastructure.Persistence.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,14 +17,18 @@ public class ApplicationDbContext : BaseDbContext
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
     }
 
-    public DbSet<Token> Tokens => Set<Token>();
+    public DbSet<Token> Token => Set<Token>();
     public DbSet<File> File => Set<File>();
     public DbSet<Meeting> Meeting => Set<Meeting>();
     public DbSet<Message> Message => Set<Message>();
     public DbSet<Recruitment> Recruitment => Set<Recruitment>();
+    public DbSet<RecruitmentTag> RecruitmentTag => Set<RecruitmentTag>();
     public DbSet<Review> Review => Set<Review>();
+    public DbSet<Tag> Tag => Set<Tag>();
     public DbSet<UserMeeting> UserMeeting => Set<UserMeeting>();
     public DbSet<UserRecruitment> UserRecruitment => Set<UserRecruitment>();
+    public DbSet<Room> Room => Set<Room>();
+    public DbSet<RoomUser> RoomUser => Set<RoomUser>();
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
