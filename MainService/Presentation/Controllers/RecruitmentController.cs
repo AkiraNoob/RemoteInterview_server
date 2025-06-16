@@ -8,13 +8,6 @@ namespace MainService.Presentation.Controllers;
 
 public class RecruitmentController : VersionedApiController
 {
-    private ICurrentUser _currentUser;
-
-    public RecruitmentController(ICurrentUser currentUser)
-    {
-        _currentUser = currentUser;
-    }
-
     [HttpPost("")]
     [EndpointDescription("Create a recruitment")]
     public async Task<RecruitmentDTO> CreateRecruitmentAsync([FromBody] CreateRecruitmentRequest request, CancellationToken cancellationToken)
@@ -33,7 +26,7 @@ public class RecruitmentController : VersionedApiController
     [EndpointDescription("Apply for a recruitment")]
     public async Task<Guid> ApplyRecruitmentAsync(Guid recruitmentId, [FromBody] ApplyRecruitmentDTO request, CancellationToken cancellationToken)
     {
-        return await Mediator.Send(new ApplyRecruimentRequest(recruitmentId, _currentUser.GetUserId(), request.CV, request.UsePreloadedCV), cancellationToken);
+        return await Mediator.Send(new ApplyRecruimentRequest(recruitmentId, request.CV, request.UsePreloadedCV), cancellationToken);
     }
 
     [HttpGet("")]
@@ -43,16 +36,16 @@ public class RecruitmentController : VersionedApiController
         return await Mediator.Send(request, cancellationToken);
     }
 
-    [HttpGet("${recruitmentId}")]
+    [HttpGet("{recruitmentId}")]
     [EndpointDescription("Get recruitment detail")]
     public async Task<RecruitmentDTO> GetRecruitmentDetailAsync(Guid recruitmentId, CancellationToken cancellationToken)
     {
         return await Mediator.Send(new GetRecruitmentDetailRequest(recruitmentId), cancellationToken);
     }
 
-    [HttpGet("${recruitmentId}/apply")]
+    [HttpGet("{recruitmentId}/apply")]
     [EndpointDescription("Get applying list of a recruitment")]
-    public async Task<ICollection<RecruitmentApplyingResultDTO>> GetApplyingListOfARecruitmentAsync(Guid recruitmentId, CancellationToken cancellationToken)
+    public async Task<PaginationResponse<RecruitmentApplyingResultDTO>> GetApplyingListOfARecruitmentAsync(Guid recruitmentId, CancellationToken cancellationToken)
     {
         return await Mediator.Send(new GetApplyingListOfRecruitmentRequest(recruitmentId), cancellationToken);
     }

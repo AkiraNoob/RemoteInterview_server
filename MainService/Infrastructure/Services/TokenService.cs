@@ -1,5 +1,6 @@
 ﻿using AuthService.Domain.Models;
 using MainService.Application.Exceptions;
+using MainService.Application.Helpers;
 using MainService.Application.Slices.UserSlice.DTOs;
 using MainService.Application.Slices.UserSlice.Interfaces;
 using MainService.Domain.Authorization;
@@ -31,8 +32,19 @@ public class TokenService(
     public async Task<TokenDTO> GetTokenAsync(TokenRequest request, CancellationToken cancellationToken)
     {
         var user = await _dbContext.Users.FilterByUserIdentifier(request.Email).FirstOrDefaultAsync(cancellationToken)
+                        ?? throw new NotFoundException("User not found");
 
-           ?? throw new UnauthorizedException("User not found");
+        //if (request.Email.IsEmail() && !user.EmailConfirmed)
+        //{
+        //    throw new UnauthorizedException("Email not verified");
+        //}
+
+        bool isPasswordValid = !string.IsNullOrWhiteSpace(user.Password) && BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
+        if (!isPasswordValid)
+        {
+            throw new UnauthorizedException("Invalid password");
+        }
+
         return await GenerateTokens(user);
     }
     public async Task<TokenDTO> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)

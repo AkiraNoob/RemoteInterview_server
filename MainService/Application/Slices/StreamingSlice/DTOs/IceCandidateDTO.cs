@@ -1,9 +1,22 @@
-﻿namespace MainService.Application.Slices.StreamingSlice.DTOs
+﻿namespace MainService.Application.Slices.StreamingSlice.DTOs;
+
+public class IceCandidateDTO : ForwardStreamingMessageBaseDTO
 {
-    public class IceCandidateDTO
+    public object Candidate { get; set; }
+}
+
+public class RoutingIceCandidateReceivedStreamingDTO
+{
+    public object Candidate { get; set; }
+    public string SourceConnectionId { get; set; }
+    public RoutingIceCandidateReceivedStreamingDTO(object Candidate, string SourceConnectionId)
     {
-        string TargetUserId { get; set; }
-        object Candidate { get; set; }
-        string SenderUserId { get; set; }
+        this.Candidate = Candidate;
+        this.SourceConnectionId = SourceConnectionId;
+    }
+    public RoutingIceCandidateReceivedStreamingDTO(IceCandidateDTO ic)
+    {
+        this.Candidate = ic.Candidate;
+        this.SourceConnectionId = ic.ReceiverConnectionId;
     }
 }

@@ -6,13 +6,14 @@ using MainService.Infrastructure.Logging;
 using MainService.Application;
 using MainService.Infrastructure.Configuration;
 using MainService.Infrastructure.Common.JsonConverters;
+using MainService.Infrastructure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSharedConfiguration();
 
 StaticLogger.EnsureInitialized(builder.Configuration);
-Log.Information("AuthService booting up...");
+Log.Information("MainService booting up...");
 
 builder.Host.UseSerilog((_, config) =>
 {
@@ -31,10 +32,12 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
+await app.Services.InitializeDatabasesAsync();
+
 app.UseHttpsRedirection();
 
 app.UseInfrastructure(builder.Configuration);
 app.MapEndpoints();
-app.MapControllers();
+app.MapHub<WebRtcSignalingHub>("/streaming");
 
 app.Run();

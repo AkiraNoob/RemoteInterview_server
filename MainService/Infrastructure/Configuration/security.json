@@ -3,8 +3,8 @@
     "Provider": "Jwt",
     "RequireConfirmedAccount": false,
     "JwtSettings": {
-      "Key": "NguyenDucPhuong",
-      "TokenExpirationInMinutes": 15,
+      "Key": "S0M3RAN0MS3CR3TMAG1C-NGUYENDUCPHUONG",
+      "TokenExpirationInMinutes": 60,
       "RefreshTokenExpirationInDays": 7
     }
   }

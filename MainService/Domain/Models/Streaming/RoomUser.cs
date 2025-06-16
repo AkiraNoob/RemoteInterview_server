@@ -2,15 +2,10 @@
 
 namespace MainService.Domain.Models.Streaming;
 
-public class RoomUser : AuditableEntity, IAggregateRoot
+public class RoomUser(Guid userId, Guid roomId, string connectionId) : AuditableEntity, IAggregateRoot
 {
-    public Guid UserId { get; set; }
-    public Guid RoomId { get; set; }
+    public Guid UserId { get; set; } = userId;
+    public Guid RoomId { get; set; } = roomId;
+    public string ConnectionId { get; set; } = connectionId;
     public virtual Room Room { get; set; }
-
-    public RoomUser(Guid userId, Guid roomId)
-    {
-        UserId = userId;
-        RoomId = roomId;
-    }
 }

@@ -3,6 +3,8 @@ using MainService.Application.Interfaces;
 using MainService.Domain.Contracts;
 using MainService.Infrastructure.Persistence.Context;
 using MainService.Infrastructure.Persistence.Repository;
+using MainService.Infrastructure.DependencyInjection;
+using MainService.Infrastructure.Persistence.Initialization;
 
 namespace MainService.Infrastructure.Persistence;
 
@@ -21,6 +23,10 @@ public static class Startup
         return services
             .Configure<DatabaseSettings>(config.GetSection(nameof(DatabaseSettings)))
             .AddDbContext<ApplicationDbContext>(m => m.UsePgDatabase(rootConnectionString))
+            .AddTransient<IDatabaseInitializer, DatabaseInitializer>()
+            .AddTransient<ApplicationDbSeeder>()
+            .AddServices(typeof(ICustomSeeder), ServiceLifetime.Transient)
+            .AddTransient<CustomSeederRunner>()
             .AddRepositories();
     }
 

@@ -1,6 +1,5 @@
 ﻿using Ardalis.Specification;
 using MainService.Application.Common.Models;
-using TMS.Application.Common.Specification;
 
 namespace MainService.Application.Common.Specifications;
 

@@ -10,7 +10,7 @@ public class Recruitment(Guid companyId,
     string welfare,
     string address,
     int provinceId,
-    int districtIt,
+    int districtId,
     int minExperience,
     long maxSalary) : AuditableEntity, IAggregateRoot
 {
@@ -22,7 +22,7 @@ public class Recruitment(Guid companyId,
     public string Welfare { get; set; } = welfare;
     public string Address { get; set; } = address;
     public int ProvinceId { get; set; } = provinceId;
-    public int DistrictId { get; set; } = districtIt;
+    public int DistrictId { get; set; } = districtId;
     public int MinExperience { get; set; } = minExperience;
     public long MaxSalary { get; set; } = maxSalary;
 

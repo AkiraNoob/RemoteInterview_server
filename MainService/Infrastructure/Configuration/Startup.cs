@@ -7,11 +7,14 @@ public static class Startup
     /// </summary>
     public static WebApplicationBuilder AddSharedConfiguration(this WebApplicationBuilder builder)
     {
-        const string configurationsDirectory = "Configuration";
+        const string configurationsDirectory = "Infrastructure/Configuration";
 
         builder.Configuration
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"{configurationsDirectory}/security.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"{configurationsDirectory}/cloudinary.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"{configurationsDirectory}/cors.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"{configurationsDirectory}/database.json", optional: false, reloadOnChange: true)
             .AddEnvironmentVariables();
 
         return builder;

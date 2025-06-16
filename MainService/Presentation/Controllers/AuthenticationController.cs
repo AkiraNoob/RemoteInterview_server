@@ -1,28 +1,30 @@
-﻿using MainService.Application.Slices.UserSlice.DTOs;
+﻿using Ardalis.Result;
+using MainService.Application.Slices.UserSlice.DTOs;
 using MainService.Application.Slices.UserSlice.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MainService.Presentation.Controllers;
-public class AuthenticationController : VersionedApiController
+
+[AllowAnonymous]
+public class AuthenticationController(ITokenService tokenService, IUserService userService) : VersionedApiController
 {
-    private ITokenService _tokenService;
-
-    public AuthenticationController(ITokenService tokenService)
-    {
-        _tokenService = tokenService;
-    }
-
-
     [HttpPost("login")]
     [EndpointDescription("Login user in.")]
     public async Task<TokenDTO> LoginAsync([FromBody] TokenRequest body, CancellationToken cancellationToken)
     {
-        return await _tokenService.GetTokenAsync(body, cancellationToken);
+        return await tokenService.GetTokenAsync(body, cancellationToken);
     }
 
     [HttpPost("refresh")]
     public async Task<TokenDTO> GetRefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        return await _tokenService.RefreshTokenAsync(request, cancellationToken);
+        return await tokenService.RefreshTokenAsync(request, cancellationToken);
+    }
+
+    [HttpPost("sign-up")]
+    public async Task<Result<string>> SignUpAsync([FromBody] CreateUserDTO request, CancellationToken cancellationToken)
+    {
+        return await userService.CreateUserAsync(request, cancellationToken);
     }
 }

@@ -10,6 +10,6 @@ public class RecruitmentConfig : IEntityTypeConfiguration<Recruitment>
     {
        builder.HasMany(x => x.UserRecruitments).WithOne(x => x.Recruitment).HasForeignKey(x => x.UserId);
        builder.HasMany(x => x.Meetings).WithOne(x => x.Recruitment).HasForeignKey(x => x.RecruitmentId);
-       builder.HasMany(x => x.RecruitmentTags).WithOne(x => x.Recruitment).HasForeignKey(x => x.RecruitmentId)
+        builder.HasMany(x => x.RecruitmentTags).WithOne(x => x.Recruitment).HasForeignKey(x => x.RecruitmentId);
     }
 }

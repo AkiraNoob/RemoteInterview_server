@@ -6,6 +6,7 @@ using MainService.Domain.Models.Streaming;
 using MainService.Infrastructure.Persistence.Context;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace MainService.Infrastructure.Services;
 
@@ -17,14 +18,23 @@ public class RoomService(
     private readonly ApplicationDbContext _dbContext = dbContext;
     private readonly IUserService _userService = userService;
 
-    public async Task AddUserToRoomAsync(string userId, string roomId, CancellationToken cancellationToken = default)
+    public async Task AddUserToRoomAsync(UserToConnectionIdDTO user, string roomId, CancellationToken cancellationToken = default)
     {
-        await DoubleCheckRoomAndUser(userId, roomId, cancellationToken);
+        await DoubleCheckRoomAndUser(user.UserId.ToString(), roomId, cancellationToken);
 
-        Guid.TryParse(userId, out Guid guidUId);
-        Guid.TryParse(roomId, out Guid guidRId);
+        var isParsingUserIdToGuidSuccess = Guid.TryParse(user.UserId.ToString(), out Guid guidUId);
+        if (!isParsingUserIdToGuidSuccess)
+        {
+            throw new BadRequestException("UserId is invalid");
+        }
 
-        var roomUser = new RoomUser(guidUId, guidRId);
+        var isParsingRoomIdToGuidSuccess = Guid.TryParse(roomId, out Guid guidRId);
+        if (!isParsingRoomIdToGuidSuccess)
+        {
+            throw new BadRequestException("UserId is invalid");
+        }
+
+        var roomUser = new RoomUser(guidUId, guidRId, user.ConnectionId);
 
         await _dbContext.RoomUser.AddAsync(roomUser, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -32,7 +42,7 @@ public class RoomService(
 
     public async Task<RoomDTO> GetOrAddRoomAsync(string roomId, CancellationToken cancellationToken = default)
     {
-        var room = await _dbContext.Room.Where(r => r.Id.ToString() == roomId).FirstOrDefaultAsync(cancellationToken);
+        var room = await _dbContext.Room.Include(x => x.Users).Where(r => r.Id.ToString() == roomId).FirstOrDefaultAsync(cancellationToken);
         if (room == null)
         {
             var newRoom = new Room();
@@ -43,22 +53,38 @@ public class RoomService(
         return room.Adapt<RoomDTO>();
     }
 
-    public async Task RemoveUserFromRoomAsync(string userId, string roomId, CancellationToken cancellationToken = default)
-    {
-        await DoubleCheckRoomAndUser(userId, roomId, cancellationToken);
-
-        var roomUser = await _dbContext.RoomUser.Where(ru => ru.UserId.ToString() == userId).FirstOrDefaultAsync(cancellationToken) ?? throw new BadRequestException("User aren't in this room yet");
-
-        _dbContext.RoomUser.Remove(roomUser);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<ICollection<Guid>> GetOtherUsersInRoomAsync(string userId, string roomId, CancellationToken cancellationToken = default)
+    public async Task<ICollection<string>> GetOtherUsersInRoomAsync(UserToConnectionIdDTO user, string roomId, CancellationToken cancellationToken = default)
     {
         var room = await CheckAndGetRoomExisted(roomId, cancellationToken);
-        var otherUserIds = await _dbContext.RoomUser.Where(ru => ru.UserId.ToString() != userId).Select(ru => ru.UserId).ToListAsync(cancellationToken);
+        var otherUserIds = await _dbContext.RoomUser.Where(ru => ru.UserId.ToString() != user.UserId.ToString()).Select(ru => ru.ConnectionId).ToListAsync(cancellationToken);
 
         return otherUserIds;
+    }
+
+    public async Task<RoomDTO?> RemoveUserFromRoomAsync(UserToConnectionIdDTO user, CancellationToken cancellationToken = default)
+    {
+        var roomUser = await _dbContext.RoomUser
+                            .Where(u => u.ConnectionId == user.ConnectionId && u.UserId == user.UserId)
+                            .FirstOrDefaultAsync(cancellationToken);
+     
+        if(roomUser != null)
+        {
+            _dbContext.RoomUser.Remove(roomUser);
+
+            var room = await _dbContext.Room.Include(x => x.Users).Where(x => x.Id == roomUser.RoomId).FirstOrDefaultAsync(cancellationToken);
+
+            if(room?.Users.Count == 0)
+            {
+                _dbContext.Room.Remove(room);
+                Log.Information($"Room {room.Id} deleted as no user in room.");
+            }
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return room.Adapt<RoomDTO>();
+        }
+
+        return null;
     }
 
     private async Task<int> CheckRoomExisted(string roomId, CancellationToken cancellationToken)
@@ -68,7 +94,7 @@ public class RoomService(
 
     private async Task<RoomDTO> CheckAndGetRoomExisted(string roomId, CancellationToken cancellationToken)
     {
-        var room = await _dbContext.Room.Where(r => r.Id.ToString() == roomId).FirstOrDefaultAsync(cancellationToken);
+        var room = await _dbContext.Room.Include(x => x.Users).Where(r => r.Id.ToString() == roomId).FirstOrDefaultAsync(cancellationToken);
         return room.Adapt<RoomDTO>();
     }
 

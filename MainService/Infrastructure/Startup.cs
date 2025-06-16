@@ -5,6 +5,8 @@ using MainService.Infrastructure.Cors;
 using MainService.Infrastructure.DependencyInjection;
 using MainService.Infrastructure.MessageBus;
 using MainService.Infrastructure.Middleware;
+using MainService.Infrastructure.Persistence;
+using MainService.Infrastructure.Persistence.Initialization;
 
 namespace AuthService.Infrastructure;
 
@@ -12,16 +14,20 @@ internal static class Startup
 {
     internal static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
-        return services
+        services
             .AddResponseCompression()
             .AddApiVersioning()
             .AddAuth(config)
             .AddCorsPolicy(config)
             .AddExceptionMiddleware()
             .AddOpenApiDocumentation(config)
+            .AddPersistence(config)
             .AddRouting(options => options.LowercaseUrls = true)
-            .AddMessageBus()
             .AddServices();
+
+        services.AddSignalR();
+
+        return services;
     }
 
     private static IServiceCollection AddApiVersioning(this IServiceCollection services) =>
@@ -37,6 +43,16 @@ internal static class Startup
            options.GroupNameFormat = "'v'V";
            options.SubstituteApiVersionInUrl = true;
        }).Services;
+
+    public static async Task InitializeDatabasesAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
+    {
+        // Create a new scope to retrieve scoped services
+        using var scope = services.CreateScope();
+
+        await scope.ServiceProvider.GetRequiredService<IDatabaseInitializer>()
+            .InitializeDatabasesAsync(cancellationToken);
+    }
+
 
     internal static IApplicationBuilder UseInfrastructure(this IApplicationBuilder builder, IConfiguration config) =>
        builder

@@ -1,7 +1,10 @@
+using MainService.Application.Slices.UserSlice.DTOs;
 using MainService.Domain.Contracts;
 using MainService.Domain.Enums;
 using MainService.Domain.Models;
+using MainService.Infrastructure.Constants;
 using Microsoft.AspNetCore.Identity;
+using System.Diagnostics.CodeAnalysis;
 using File = MainService.Domain.Models.File;
 
 namespace MainService.Infrastructure.Identity;
@@ -13,30 +16,55 @@ public class ApplicationUser : IdentityUser, IAuditableEntity
     public DateTime? DateOfBirth { get; set; }
     public Guid? DeletedBy { get; set; }
     public DateTime? DeletedOn { get; set; }
-    public string FullName { get; set; }
-    public string? AvatarId { get; set; }
-    public string? CVId { get; set; }
+    public string Descriptiion { get; set; } = default!;
+    public string? FullName { get; set; }
+    [AllowNull]
+    public Guid? AvatarId { get; set; }
+    [AllowNull]
+    public Guid? CVId { get; set; }
     public Guid LastModifiedBy { get; set; }
     public DateTime? LastModifiedOn { get; set; } = DateTime.UtcNow;
-    public string Password { get; set; }
-    public string Email { get; set; }
-    public string Address { get; set; }
-    public int DistrictId { get; set; }
-    public int ProvinceId { get; set; }
-    public UserRoleEnum Role { get; set; }
-    public ApplicationUserCompanyProfile CompanyProfile { get; set; }
-    public virtual File Avatar { get; set; }
-    public virtual File CV { get; set; }
-    //public virtual ICollection<Message> Messages { get; set; }
-    //public virtual ICollection<Recruitment> Recruitments { get; set; }
-    //public virtual ICollection<Review> WrittenReviews { get; set; }
-    //public virtual ICollection<Review> ReceivedReviews { get; set; }
-}
+    public string? Password { get; set; }
+    [AllowNull]
+    public string? Address { get; set; }
+    [AllowNull]
+    public int? DistrictId { get; set; }
+    [AllowNull]
+    public int? ProvinceId { get; set; }
+    [AllowNull]
+    public string? TaxNumber { get; set; }
+    [AllowNull]
+    public Guid? CompanyRegistrationImageId { get; set; }
+    public virtual File? Avatar { get; set; }
+    public virtual File? CV { get; set; }
+    public virtual File? CompanyRegistrationImage { get; set; }
 
-public class ApplicationUserCompanyProfile
-{
-    public string TaxNumber { get; set; }
-    public string CompanyRegistrationImageId { get; set; }
-    public virtual File CompanyRegistrationImage { get; set; }
+    public ApplicationUser(CreateUserDTO payload)
+    {
+        Email = payload.Email;
+        FullName = payload.FullName;
+        Password = BCrypt.Net.BCrypt.HashPassword(payload.Password);
+        UserName = payload.Email;
 
+        EmailConfirmed = true;
+        PhoneNumberConfirmed = true;
+
+        NormalizedEmail = UserConstant.Root.EmailAddress.ToUpperInvariant();
+        NormalizedUserName = payload.FullName.ToUpperInvariant();
+    }
+    public ApplicationUser(string fullName, string email, string password)
+    {
+        FullName = fullName;
+        Email = email;
+        UserName = email;
+        Password = BCrypt.Net.BCrypt.HashPassword(password);
+        EmailConfirmed = true;
+        PhoneNumberConfirmed = true;
+        NormalizedEmail = email.ToUpperInvariant();
+        NormalizedUserName = fullName.ToUpperInvariant();
+    }
+
+    public ApplicationUser()
+    {
+    }
 }

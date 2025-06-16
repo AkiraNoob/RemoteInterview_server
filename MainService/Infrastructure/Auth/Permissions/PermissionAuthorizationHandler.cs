@@ -5,12 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MainService.Infrastructure.Auth.Permissions;
 
-internal class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+internal class PermissionAuthorizationHandler(ISender mediator, IUserService userService) : AuthorizationHandler<PermissionRequirement>
 {
-    private readonly ISender _mediator;
-
-    public PermissionAuthorizationHandler(ISender mediator) =>
-        _mediator = mediator;
+    private readonly ISender _mediator = mediator;
+    private readonly IUserService _userService = userService;
 
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {

@@ -1,74 +1,75 @@
-﻿using MainService.Application.Slices.StreamingSlice.Interfaces;
-using MainService.Domain.Models.Streaming;
+﻿using MainService.Application.Interfaces;
+using MainService.Application.Slices.StreamingSlice.DTOs;
+using MainService.Application.Slices.StreamingSlice.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
+using Serilog;
 
 namespace MainService.Infrastructure.SignalR;
 
+[Authorize]
 public class WebRtcSignalingHub : Hub
 {
     private readonly IRoomService _roomService;
-
-    public WebRtcSignalingHub(IRoomService roomService)
+    private readonly ICurrentUser _currentUser;
+    public WebRtcSignalingHub(IRoomService roomService, ICurrentUser currentUser)
     {
         _roomService = roomService;
+        _currentUser = currentUser;
     }
 
     public async Task JoinRoom(string roomId)
     {
-        Console.WriteLine($"User {Context.ConnectionId} attempting to join room {roomId}");
-        Context.UserIdentifier
+        var userId = _currentUser.GetUserId();
+        Log.Information($"User {Context.ConnectionId} with the id {userId} attempting to join room {roomId}");
+
+        var user = new UserToConnectionIdDTO(userId, Context.ConnectionId);
 
         // Create room if it doesn't exist
-        var room = _roomService.GetOrAddRoomAsync(roomId);
+        var room = await _roomService.GetOrAddRoomAsync(roomId);
 
         // Add user to the room
-        await _roomService.AddUserToRoomAsync(Context.ConnectionId, roomId);
-        
+        await _roomService.AddUserToRoomAsync(user, room.Id.ToString());
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
-        Console.WriteLine($"User {Context.ConnectionId} joined room {roomId}. Users in room: {string.Join(", ", room.Users)}");
+        await Groups.AddToGroupAsync(Context.ConnectionId, room.Id.ToString());
+        Console.WriteLine($"User {Context.ConnectionId}  with the id {userId} joined room {room.Id.ToString()}. Users in room: {room.Id.ToString()}");
 
         // Get list of other users already in the room
-        var otherUsers = room.Users.Where(id => id != Context.ConnectionId).ToList();
+        var otherUserConnectionIds = _roomService.GetOtherUsersInRoomAsync(user, room.Id.ToString());
 
         // Notify the new user about existing users
-        await Clients.Caller.SendAsync("existing-users", otherUsers);
-        Console.WriteLine($"Sent existing users {string.Join(", ", otherUsers)} to {Context.ConnectionId}");
+        await Clients.Caller.SendAsync("ExistingUsers", otherUserConnectionIds);
+        Console.WriteLine($"Sent existing users {string.Join(", ", otherUserConnectionIds)} to {Context.ConnectionId}");
 
         // Notify existing users about the new user
-        await Clients.Group(roomId).SendAsync("user-joined", Context.ConnectionId);
-        Console.WriteLine($"Notified room {roomId} that {Context.ConnectionId} joined.");
+        await Clients.Group(room.Id.ToString()).SendAsync("UserJoined", Context.ConnectionId);
+        Console.WriteLine($"Notified room {room.Id.ToString()} that {Context.ConnectionId} joined.");
     }
 
-    public async Task Offer(string targetUserId, string callerUserId, object signal)
+    public async Task Offer(OfferStreamingDTO payload)
     {
-        Console.WriteLine($"Relaying offer from {callerUserId} to {targetUserId}");
-        await Clients.Client(targetUserId).SendAsync("offer-received", new
+        Console.WriteLine($"Relaying offer from {payload.CallerConnectionId} to {payload.ReceiverConnectionId}");
+        await Clients.Client(payload.ReceiverConnectionId).SendAsync("OfferReceived", new RoutingOfferReceivedStreamingDTO(payload));
+    }
+
+    public async Task Answer(AnswerStreamingDTO payload)
+    {
+        Console.WriteLine($"Relaying answer from {payload.CallerConnectionId}  to  {payload.ReceiverConnectionId}");
+        await Clients.Client(payload.ReceiverConnectionId).SendAsync("AnswerReceived", new RoutingAnswerReceivedStreamingDTO(payload));
+    }
+
+    public async Task IceCandidate(IceCandidateDTO payload)
+    {
+        await Clients.Client(payload.ReceiverConnectionId).SendAsync("IceCandidateReceived", new
         {
-            Signal = signal,
-            CallerUserId = callerUserId
+            payload.Candidate,
+            payload.ReceiverConnectionId
         });
     }
 
-    public async Task Answer(string targetUserId, string calleeUserId, object signal)
+    public string GetConnectionId()
     {
-        Console.WriteLine($"Relaying answer from {calleeUserId} to {targetUserId}");
-        await Clients.Client(targetUserId).SendAsync("answer-received", new
-        {
-            Signal = signal,
-            CalleeUserId = calleeUserId
-        });
-    }
-
-    public async Task IceCandidate(string targetUserId, object candidate, string senderUserId)
-    {
-        await Clients.Client(targetUserId).SendAsync("ice-candidate-received", new
-        {
-            Candidate = candidate,
-            SenderUserId = senderUserId
-        });
+        return Context.ConnectionId;
     }
 
     public override async Task OnConnectedAsync()
@@ -79,29 +80,18 @@ public class WebRtcSignalingHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception exception)
     {
-        Console.WriteLine($"User disconnecting: {Context.ConnectionId}");
+        var userId = _currentUser.GetUserId();
+        Console.WriteLine($"User disconnecting: {Context.ConnectionId} with id {userId}");
 
-        // Find and remove user from rooms
-        foreach (var room in Rooms)
+        var user = new UserToConnectionIdDTO(userId, Context.ConnectionId);
+
+        var room = await _roomService.RemoveUserFromRoomAsync(user);
+        if (room != null)
         {
-            lock (room.Value.Users)
-            {
-                if (room.Value.Users.Remove(Context.ConnectionId))
-                {
-                    Console.WriteLine($"User {Context.ConnectionId} removed from room {room.Key}. Users left: {string.Join(", ", room.Value.Users)}");
+            Console.WriteLine($"User {Context.ConnectionId} with id {userId} removed from room {room.Id}. Users left: {room.Users.Count}");
 
-                    // Notify remaining users in the room
-                    await Clients.Group(room.Key).SendAsync("user-left", Context.ConnectionId);
-                    Console.WriteLine($"Notified room {room.Key} that {Context.ConnectionId} left.");
-
-                    // Clean up empty rooms
-                    if (room.Value.Users.Count == 0)
-                    {
-                        Rooms.TryRemove(room.Key, out _);
-                        Console.WriteLine($"Room {room.Key} deleted as it is empty.");
-                    }
-                }
-            }
+            await Clients.Group(room.Id.ToString()).SendAsync("UserLeft", Context.ConnectionId);
+            Console.WriteLine($"Notified room {room.Id} that {Context.ConnectionId} left.");
         }
 
         await base.OnDisconnectedAsync(exception);

@@ -2,15 +2,18 @@
 using MainService.Application.Slices.UserSlice.DTOs;
 using MainService.Infrastructure.Identity;
 using Mapster;
+using Microsoft.AspNetCore.Identity;
 
 namespace MainService.Infrastructure.Mapping.Configuration;
 
-public class UserMapping : IRegister
+public class UserMapping() : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<ApplicationUser, UserDetailDTO>()
               .Map(dest => dest.UserId, src => src.Id)
+              .Map(dest => dest.Email, src => src.Email)
+              .Map(dest => dest.PhoneNumber, src => src.PhoneNumber)
               .Map(dest => dest.Avatar, src => src.Avatar.FileUrl)
               .Map(dest => dest.CV, src => new FileDTO(
                   src.CV.Id,
@@ -18,11 +21,11 @@ public class UserMapping : IRegister
                   src.CV.FileUrl,
                   src.CV.FileType
                   ))
-              .Map(dest => dest.CompanyProfile.CompanyRegistrationImage, src => new FileDTO(
-                  src.CompanyProfile.CompanyRegistrationImage.Id, 
-                  src.CompanyProfile.CompanyRegistrationImage.FileName,
-                  src.CompanyProfile.CompanyRegistrationImage.FileUrl,
-                  src.CompanyProfile.CompanyRegistrationImage.FileType
+              .Map(dest => dest.CompanyRegistrationImage, src => new FileDTO(
+                  src.CompanyRegistrationImage.Id, 
+                  src.CompanyRegistrationImage.FileName,
+                  src.CompanyRegistrationImage.FileUrl,
+                  src.CompanyRegistrationImage.FileType
                   ));
 
         config.NewConfig<ApplicationUser, ShortenUserDetailDTO>()
