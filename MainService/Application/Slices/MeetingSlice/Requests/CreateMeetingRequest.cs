@@ -54,6 +54,7 @@ public class CreateMeetingRequestHandler(
                 MeetingId = meeting.Id,
                 UserId = ownerUserId,
                 Role = Domain.Enums.MeetingRoleEnum.Owner,
+                Status = Domain.Enums.UserMeetingStatusEnum.Accepted
             }
         };
 
@@ -69,9 +70,6 @@ public class CreateMeetingRequestHandler(
 
         await _meetingRepository.AddAsync(meeting, cancellationToken);
         await _userMeetingRepository.AddRangeAsync(userMeetings, cancellationToken);
-
-        await _meetingRepository.SaveChangesAsync(cancellationToken);
-        await _userMeetingRepository.SaveChangesAsync(cancellationToken);
         
         return meeting.Adapt<ShortenMeetingDTO>();
     }

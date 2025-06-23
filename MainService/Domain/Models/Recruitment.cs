@@ -2,9 +2,10 @@
 
 namespace MainService.Domain.Models;
 
-public class Recruitment(Guid companyId,
+public class Recruitment(
+    Guid companyId,
     string title,
-    string motivation,
+    //string motivation,
     string description,
     string requirement,
     string welfare,
@@ -12,11 +13,13 @@ public class Recruitment(Guid companyId,
     int provinceId,
     int districtId,
     int minExperience,
-    long maxSalary) : AuditableEntity, IAggregateRoot
+    long maxSalary,
+    Guid professionId,
+    DateTime? expiredDate) : AuditableEntity, IAggregateRoot
 {
     public Guid CompanyId { get; set; } = companyId;
     public string Title { get; set; } = title;
-    public string Motivation { get; set; } = motivation;
+    //public string Motivation { get; set; } = motivation;
     public string Description { get; set; } = description;
     public string Requirement { get; set; } = requirement;
     public string Welfare { get; set; } = welfare;
@@ -25,8 +28,10 @@ public class Recruitment(Guid companyId,
     public int DistrictId { get; set; } = districtId;
     public int MinExperience { get; set; } = minExperience;
     public long MaxSalary { get; set; } = maxSalary;
-
+    public Guid ProfessionId { get; set; } = professionId;
+    public DateTime? ExpiredDate { get; set; } = expiredDate;
     public virtual ICollection<Meeting> Meetings { get; set; }
     public virtual ICollection<UserRecruitment> UserRecruitments { get; set; }
-    public virtual ICollection<RecruitmentTag> RecruitmentTags { get; set; }
+    public virtual ICollection<RecruitmentKeyword> RecruitmentKeywords { get; set; }
+    public virtual Profession Profession { get; set; }
 }

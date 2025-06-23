@@ -5,12 +5,12 @@ namespace MainService.Application.Slices.UserSlice.DTOs;
 
 public class UserDetailDTO
 {
-    public string UserId { get; set; }
+    public string Id { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public string FullName { get; set; }
+    public string? Description { get; set; }
     public FileDTO? Avatar { get; set; }
     public FileDTO? CV { get; set; }
-    public string? CVId { get; set; }
     public string Email { get; set; }
     public string PhoneNumber { get; set; }
     public string Address { get; set; }
@@ -31,4 +31,6 @@ public class ShortenUserDetailDTO
     public string FullName { get; set; }
     public string? Avatar { get; set; }
     public string Email { get; set; }
+    public string? Description { get; set; }
+
 }

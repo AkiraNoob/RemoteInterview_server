@@ -3,10 +3,12 @@ using AuthService.Infrastructure.OpenApi;
 using MainService.Infrastructure.Auth;
 using MainService.Infrastructure.Cors;
 using MainService.Infrastructure.DependencyInjection;
+using MainService.Infrastructure.Mailling;
 using MainService.Infrastructure.MessageBus;
 using MainService.Infrastructure.Middleware;
 using MainService.Infrastructure.Persistence;
 using MainService.Infrastructure.Persistence.Initialization;
+using MainService.Infrastructure.Storage;
 
 namespace AuthService.Infrastructure;
 
@@ -20,6 +22,8 @@ internal static class Startup
             .AddAuth(config)
             .AddCorsPolicy(config)
             .AddExceptionMiddleware()
+            .AddStorage(config)
+            .AddMailling(config)
             .AddOpenApiDocumentation(config)
             .AddPersistence(config)
             .AddRouting(options => options.LowercaseUrls = true)

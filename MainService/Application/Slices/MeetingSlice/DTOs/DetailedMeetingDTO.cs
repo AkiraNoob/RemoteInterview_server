@@ -6,7 +6,7 @@ public class DetailedMeetingDTO
 {
     public Guid Id { get; set; }
     public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public DateTime? EndTime { get; set; }
     public Guid RecruitmentId { get; set; }
     public string RecruitmentTitle { get; set; }
     public string Description { get; set; }

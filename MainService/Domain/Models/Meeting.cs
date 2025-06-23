@@ -1,4 +1,5 @@
 ﻿using MainService.Domain.Contracts;
+using MainService.Domain.Enums;
 
 namespace MainService.Domain.Models;
 
@@ -10,7 +11,8 @@ public class Meeting : AuditableEntity, IAggregateRoot
     public Guid OwnerId { get; set; }
     public string Description { get; set; }
     public string Title { get; set; }
+    public MeetingStatusEnum Status { get; set; } = MeetingStatusEnum.Pending;
     public virtual Recruitment Recruitment { get; set; }
     public virtual ICollection<UserMeeting> UserMeetings { get; set; }
-    public virtual ICollection<Message> Messages { get; set; }
+    public virtual ICollection<MeetingMessage> Messages { get; set; }
 }

@@ -3,7 +3,7 @@ using MainService.Application.Slices.FileSlice.DTOs;
 
 namespace MainService.Application.Slices.FileSlice.Interfaces;
 
-public interface IStorageService : IScopedService
+public interface IStorageService
 {
-    Task<UploadFileResultDTO?> UploadImageAsync(IFormFile file, string publicId);
+    Task<UploadFileResultDTO> UploadFileAsync(IFormFile file, string publicId, CancellationToken cancellationToken = default);
 }

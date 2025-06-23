@@ -105,7 +105,7 @@ public class RoomService(
             throw new NotFoundException("Room not found");
         }
 
-        if (await _userService.CheckUserExisted(userId.ToString(), cancellationToken) == false)
+        if (await _userService.CheckUserExistedAsync(userId.ToString(), cancellationToken) == false)
         {
             throw new NotFoundException("User not found");
         }

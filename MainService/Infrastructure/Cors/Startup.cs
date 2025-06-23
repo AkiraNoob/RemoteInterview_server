@@ -21,7 +21,7 @@ public static class Startup
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials()
-                    .WithOrigins([.. origins])));
+                    .WithOrigins([.. origins, "http://localhost:3000"])));
     }
 
     public static IApplicationBuilder UseCorsPolicy(this IApplicationBuilder app) =>

@@ -8,16 +8,8 @@ using Serilog;
 namespace MainService.Infrastructure.SignalR;
 
 [Authorize]
-public class WebRtcSignalingHub : Hub
+public class WebRtcSignalingHub(IRoomService _roomService, ICurrentUser _currentUser) : Hub
 {
-    private readonly IRoomService _roomService;
-    private readonly ICurrentUser _currentUser;
-    public WebRtcSignalingHub(IRoomService roomService, ICurrentUser currentUser)
-    {
-        _roomService = roomService;
-        _currentUser = currentUser;
-    }
-
     public async Task JoinRoom(string roomId)
     {
         var userId = _currentUser.GetUserId();

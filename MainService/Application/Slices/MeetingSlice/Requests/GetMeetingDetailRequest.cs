@@ -34,7 +34,7 @@ public class GetMeetingDetailRequestHandler(
             if (user.Role == Domain.Enums.MeetingRoleEnum.Owner)
                 continue;
 
-            var userInfo = (await _userService.GetUserDetail(user.Id.ToString(), cancellationToken)).Adapt<ShortenUserDetailDTO>();
+            var userInfo = (await _userService.GetUserDetailAsync(user.Id.ToString(), cancellationToken)).Adapt<ShortenUserDetailDTO>();
 
             response.Participants.Add(userInfo);
         }

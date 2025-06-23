@@ -11,7 +11,7 @@ public class AuthenticationController(ITokenService tokenService, IUserService u
 {
     [HttpPost("login")]
     [EndpointDescription("Login user in.")]
-    public async Task<TokenDTO> LoginAsync([FromBody] TokenRequest body, CancellationToken cancellationToken)
+    public async Task<LoginTokenDTO> LoginAsync([FromBody] TokenRequest body, CancellationToken cancellationToken)
     {
         return await tokenService.GetTokenAsync(body, cancellationToken);
     }

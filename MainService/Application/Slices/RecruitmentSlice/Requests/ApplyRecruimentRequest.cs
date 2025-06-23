@@ -3,6 +3,7 @@ using MainService.Application.Interfaces;
 using MainService.Application.Slices.FileSlice.Interfaces;
 using MainService.Application.Slices.UserSlice.Interfaces;
 using MainService.Domain.Models;
+using Mapster;
 using MediatR;
 using File = MainService.Domain.Models.File;
 
@@ -26,11 +27,11 @@ public class ApplyRecruitmentHandler(
     IRepository<UserRecruitment> userRecruitmentRepository,
     ICurrentUser currentUser,
     IUserService userService,
-    IStorageService storageService
-        ) : IRequestHandler<ApplyRecruimentRequest, Guid>
+    IStorageService storageService,
+    IRepository<File> fileRepository) : IRequestHandler<ApplyRecruimentRequest, Guid>
 {
     private readonly IRepository<UserRecruitment> _userRecruitmentRepository = userRecruitmentRepository;
-    private readonly IRepository<File> _fileRepository;
+    private readonly IRepository<File> _fileRepository = fileRepository;
     private readonly ICurrentUser _currentUser = currentUser;
     private readonly IUserService _userService = userService;
     private readonly IStorageService _storageService = storageService;
@@ -41,7 +42,7 @@ public class ApplyRecruitmentHandler(
 
         if (request.UsePreloadedCV)
         {
-            var user = await _userService.GetUserDetail(_currentUser.GetUserId().ToString(), cancellationToken);
+            var user = await _userService.GetUserDetailAsync(_currentUser.GetUserId().ToString(), cancellationToken);
             if (user.CV != null)
             {
                 userRecruitment.FileId = user.CV.FileId;
@@ -56,14 +57,9 @@ public class ApplyRecruitmentHandler(
             if (request.CV != null)
             {
                 var file = new File();
-                var result = await _storageService.UploadImageAsync(request.CV, file.Id.ToString());
+                var result = await _storageService.UploadFileAsync(request.CV, file.Id.ToString(), cancellationToken);
 
-                if (result != null)
-                {
-                    file.FileName = result.FileName;
-                    file.FileUrl = result.FileUrl;
-                    file.FileType = result.FileType;
-                }
+                result.Adapt(file);
 
                 await _fileRepository.AddAsync(file, cancellationToken);
                 await _fileRepository.SaveChangesAsync(cancellationToken);
@@ -77,7 +73,6 @@ public class ApplyRecruitmentHandler(
         }
 
         await _userRecruitmentRepository.AddAsync(userRecruitment, cancellationToken);
-        await _userRecruitmentRepository.SaveChangesAsync(cancellationToken);
 
         return userRecruitment.Id;
     }

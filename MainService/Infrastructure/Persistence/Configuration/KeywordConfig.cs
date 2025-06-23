@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MainService.Infrastructure.Persistence.Configuration;
 
-public class TagConfig : IEntityTypeConfiguration<Tag>
+public class KeywordConfig : IEntityTypeConfiguration<Keyword>
 {
-    public void Configure(EntityTypeBuilder<Tag> builder)
+    public void Configure(EntityTypeBuilder<Keyword> builder)
     {
     }
 }

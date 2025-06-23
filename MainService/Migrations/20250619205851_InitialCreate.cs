@@ -53,22 +53,14 @@ namespace MainService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "recruitment",
+                name: "notification",
                 schema: "app",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    company_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "text", nullable: false),
-                    motivation = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
-                    requirement = table.Column<string>(type: "text", nullable: false),
-                    welfare = table.Column<string>(type: "text", nullable: false),
-                    address = table.Column<string>(type: "text", nullable: false),
-                    province_id = table.Column<int>(type: "integer", nullable: false),
-                    district_id = table.Column<int>(type: "integer", nullable: false),
-                    min_experience = table.Column<int>(type: "integer", nullable: false),
-                    max_salary = table.Column<long>(type: "bigint", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    resource_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -78,7 +70,26 @@ namespace MainService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_recruitment", x => x.id);
+                    table.PrimaryKey("PK_notification", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "profession",
+                schema: "app",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    last_modified_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_profession", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,7 +100,7 @@ namespace MainService.Migrations
                     company_id = table.Column<Guid>(type: "uuid", nullable: false),
                     reviewer_id = table.Column<Guid>(type: "uuid", nullable: false),
                     rating = table.Column<double>(type: "double precision", nullable: false),
-                    comment = table.Column<string>(type: "text", nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
@@ -197,6 +208,7 @@ namespace MainService.Migrations
                     date_of_birth = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     deleted_by = table.Column<Guid>(type: "uuid", nullable: true),
                     deleted_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    descriptiion = table.Column<string>(type: "text", nullable: true),
                     full_name = table.Column<string>(type: "text", nullable: true),
                     avatar_id = table.Column<Guid>(type: "uuid", nullable: true),
                     cv_id = table.Column<Guid>(type: "uuid", nullable: true),
@@ -247,17 +259,24 @@ namespace MainService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "meeting",
+                name: "recruitment",
                 schema: "app",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    start_time = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    end_time = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    recruitment_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    owner_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
+                    company_id = table.Column<Guid>(type: "uuid", nullable: false),
                     title = table.Column<string>(type: "text", nullable: false),
+                    motivation = table.Column<string>(type: "text", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    requirement = table.Column<string>(type: "text", nullable: false),
+                    welfare = table.Column<string>(type: "text", nullable: false),
+                    address = table.Column<string>(type: "text", nullable: false),
+                    province_id = table.Column<int>(type: "integer", nullable: false),
+                    district_id = table.Column<int>(type: "integer", nullable: false),
+                    min_experience = table.Column<int>(type: "integer", nullable: false),
+                    max_salary = table.Column<long>(type: "bigint", nullable: false),
+                    profession_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    expired_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -267,47 +286,12 @@ namespace MainService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_meeting", x => x.id);
+                    table.PrimaryKey("PK_recruitment", x => x.id);
                     table.ForeignKey(
-                        name: "FK_meeting_recruitment_recruitment_id",
-                        column: x => x.recruitment_id,
+                        name: "FK_recruitment_profession_profession_id",
+                        column: x => x.profession_id,
                         principalSchema: "app",
-                        principalTable: "recruitment",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "user_recruitment",
-                schema: "app",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    recruitment_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    file_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    last_modified_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    deleted_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_user_recruitment", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_user_recruitment_file_file_id",
-                        column: x => x.file_id,
-                        principalSchema: "app",
-                        principalTable: "file",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_user_recruitment_recruitment_recruitment_id",
-                        column: x => x.recruitment_id,
-                        principalSchema: "app",
-                        principalTable: "recruitment",
+                        principalTable: "profession",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -336,40 +320,6 @@ namespace MainService.Migrations
                         column: x => x.room_id,
                         principalSchema: "app",
                         principalTable: "room",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "recruitment_tag",
-                schema: "app",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    tag_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    recruitment_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    last_modified_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    deleted_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_recruitment_tag", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_recruitment_tag_recruitment_recruitment_id",
-                        column: x => x.recruitment_id,
-                        principalSchema: "app",
-                        principalTable: "recruitment",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_recruitment_tag_tag_tag_id",
-                        column: x => x.tag_id,
-                        principalSchema: "app",
-                        principalTable: "tag",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -469,6 +419,108 @@ namespace MainService.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "meeting",
+                schema: "app",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    start_time = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    end_time = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    recruitment_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    owner_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    title = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    last_modified_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_meeting", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_meeting_recruitment_recruitment_id",
+                        column: x => x.recruitment_id,
+                        principalSchema: "app",
+                        principalTable: "recruitment",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "recruitment_tag",
+                schema: "app",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    keyword_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    recruitment_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    last_modified_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_recruitment_tag", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_recruitment_tag_recruitment_recruitment_id",
+                        column: x => x.recruitment_id,
+                        principalSchema: "app",
+                        principalTable: "recruitment",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_recruitment_tag_tag_keyword_id",
+                        column: x => x.keyword_id,
+                        principalSchema: "app",
+                        principalTable: "tag",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "user_recruitment",
+                schema: "app",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    recruitment_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    file_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    last_modified_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_user_recruitment", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_user_recruitment_file_file_id",
+                        column: x => x.file_id,
+                        principalSchema: "app",
+                        principalTable: "file",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_user_recruitment_recruitment_recruitment_id",
+                        column: x => x.recruitment_id,
+                        principalSchema: "app",
+                        principalTable: "recruitment",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "message",
                 schema: "app",
                 columns: table => new
@@ -505,6 +557,7 @@ namespace MainService.Migrations
                     meeting_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     role = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_on = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     last_modified_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -602,16 +655,22 @@ namespace MainService.Migrations
                 column: "meeting_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_recruitment_profession_id",
+                schema: "app",
+                table: "recruitment",
+                column: "profession_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_recruitment_tag_keyword_id",
+                schema: "app",
+                table: "recruitment_tag",
+                column: "keyword_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_recruitment_tag_recruitment_id",
                 schema: "app",
                 table: "recruitment_tag",
                 column: "recruitment_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_recruitment_tag_tag_id",
-                schema: "app",
-                table: "recruitment_tag",
-                column: "tag_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_room_user_room_id",
@@ -667,6 +726,10 @@ namespace MainService.Migrations
                 schema: "app");
 
             migrationBuilder.DropTable(
+                name: "notification",
+                schema: "app");
+
+            migrationBuilder.DropTable(
                 name: "recruitment_tag",
                 schema: "app");
 
@@ -716,6 +779,10 @@ namespace MainService.Migrations
 
             migrationBuilder.DropTable(
                 name: "recruitment",
+                schema: "app");
+
+            migrationBuilder.DropTable(
+                name: "profession",
                 schema: "app");
         }
     }

@@ -19,15 +19,12 @@ public class InviteToMeetingRequestHandler(
     ICurrentUser currentUser
     ) : IRequestHandler<InviteToMeetingRequest, Result>
 {
-    private readonly IRepository<Meeting> _meetingRepository = meetingRepository;
-    private readonly IRepository<UserMeeting> _userMeetingRepository = userMeetingRepository;
-    private readonly ICurrentUser _currentUser = currentUser;
 
     public async Task<Result> Handle(InviteToMeetingRequest request, CancellationToken cancellationToken)
     {
-        var meeting = await _meetingRepository.FirstOrDefaultAsync(new GetMeetingByIdSpec(request.MeetingId), cancellationToken) ?? throw new NotFoundException("Meeting not found.");
+        var meeting = await meetingRepository.FirstOrDefaultAsync(new GetMeetingByIdSpec(request.MeetingId), cancellationToken) ?? throw new NotFoundException("Meeting not found.");
 
-        if (meeting.OwnerId != _currentUser.GetUserId())
+        if (meeting.OwnerId != currentUser.GetUserId())
         {
             throw new ForbiddenException("Your are not meeting owner.");
         }
@@ -36,10 +33,10 @@ public class InviteToMeetingRequestHandler(
         {
             UserId = request.UserId,
             MeetingId = request.MeetingId,
+            Role = Domain.Enums.MeetingRoleEnum.Guest,
         };
 
-        await _userMeetingRepository.AddAsync(slot, cancellationToken);
-        await _userMeetingRepository.SaveChangesAsync(cancellationToken);
+        await userMeetingRepository.AddAsync(slot, cancellationToken);
 
         return Result.SuccessWithMessage("Invite user successfully.");
     } 

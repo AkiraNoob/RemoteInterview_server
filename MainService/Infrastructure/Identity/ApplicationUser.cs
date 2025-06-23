@@ -16,7 +16,8 @@ public class ApplicationUser : IdentityUser, IAuditableEntity
     public DateTime? DateOfBirth { get; set; }
     public Guid? DeletedBy { get; set; }
     public DateTime? DeletedOn { get; set; }
-    public string Descriptiion { get; set; } = default!;
+    [AllowNull]
+    public string? Descriptiion { get; set; }
     public string? FullName { get; set; }
     [AllowNull]
     public Guid? AvatarId { get; set; }
@@ -35,6 +36,9 @@ public class ApplicationUser : IdentityUser, IAuditableEntity
     public string? TaxNumber { get; set; }
     [AllowNull]
     public Guid? CompanyRegistrationImageId { get; set; }
+    public bool EmailConfirmed { get; set; } = true;
+    public bool IsOnboarded { get; set; } = false;
+    public EmployerStatusEnum EmployerStatus { get; set; } = EmployerStatusEnum.Inactive;
     public virtual File? Avatar { get; set; }
     public virtual File? CV { get; set; }
     public virtual File? CompanyRegistrationImage { get; set; }

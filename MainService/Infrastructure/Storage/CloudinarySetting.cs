@@ -1,6 +1,6 @@
 ﻿namespace MainService.Infrastructure.Storage;
 
-public class CloudinarySetting
+public class CloudinarySettings
 {
     public string CloudName { get; set; }
     public string ApiKey { get; set; }

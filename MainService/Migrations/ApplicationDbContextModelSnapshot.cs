@@ -124,6 +124,47 @@ namespace MainService.Migrations
                     b.ToTable("file", "app");
                 });
 
+            modelBuilder.Entity("MainService.Domain.Models.Keyword", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_on");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("last_modified_on");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tag", "app");
+                });
+
             modelBuilder.Entity("MainService.Domain.Models.Meeting", b =>
                 {
                     b.Property<Guid>("Id")
@@ -176,6 +217,10 @@ namespace MainService.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("start_time");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text")
@@ -188,7 +233,7 @@ namespace MainService.Migrations
                     b.ToTable("meeting", "app");
                 });
 
-            modelBuilder.Entity("MainService.Domain.Models.Message", b =>
+            modelBuilder.Entity("MainService.Domain.Models.MeetingMessage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -239,6 +284,95 @@ namespace MainService.Migrations
                     b.ToTable("message", "app");
                 });
 
+            modelBuilder.Entity("MainService.Domain.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_on");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("last_modified_on");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resource_id");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("notification", "app");
+                });
+
+            modelBuilder.Entity("MainService.Domain.Models.Profession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("deleted_on");
+
+                    b.Property<Guid>("LastModifiedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("last_modified_by");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("last_modified_on");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("profession", "app");
+                });
+
             modelBuilder.Entity("MainService.Domain.Models.Recruitment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -280,6 +414,10 @@ namespace MainService.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("district_id");
 
+                    b.Property<DateTime?>("ExpiredDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("expired_date");
+
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("last_modified_by");
@@ -296,10 +434,9 @@ namespace MainService.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("min_experience");
 
-                    b.Property<string>("Motivation")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("motivation");
+                    b.Property<Guid>("ProfessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profession_id");
 
                     b.Property<int>("ProvinceId")
                         .HasColumnType("integer")
@@ -322,10 +459,12 @@ namespace MainService.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProfessionId");
+
                     b.ToTable("recruitment", "app");
                 });
 
-            modelBuilder.Entity("MainService.Domain.Models.RecruitmentTag", b =>
+            modelBuilder.Entity("MainService.Domain.Models.RecruitmentKeyword", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -348,6 +487,10 @@ namespace MainService.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_on");
 
+                    b.Property<Guid>("KeywordId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("keyword_id");
+
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("last_modified_by");
@@ -360,15 +503,11 @@ namespace MainService.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("recruitment_id");
 
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tag_id");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("RecruitmentId");
+                    b.HasIndex("KeywordId");
 
-                    b.HasIndex("TagId");
+                    b.HasIndex("RecruitmentId");
 
                     b.ToTable("recruitment_tag", "app");
                 });
@@ -383,10 +522,10 @@ namespace MainService.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("company_id");
 
-                    b.Property<string>("Comment")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("comment");
+                        .HasColumnName("content");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
@@ -512,47 +651,6 @@ namespace MainService.Migrations
                     b.ToTable("room_user", "app");
                 });
 
-            modelBuilder.Entity("MainService.Domain.Models.Tag", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("created_on");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<DateTime?>("DeletedOn")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("deleted_on");
-
-                    b.Property<Guid>("LastModifiedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("last_modified_by");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("last_modified_on");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("tag", "app");
-                });
-
             modelBuilder.Entity("MainService.Domain.Models.UserMeeting", b =>
                 {
                     b.Property<Guid>("Id")
@@ -591,6 +689,10 @@ namespace MainService.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("integer")
                         .HasColumnName("role");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -641,6 +743,10 @@ namespace MainService.Migrations
                     b.Property<Guid>("RecruitmentId")
                         .HasColumnType("uuid")
                         .HasColumnName("recruitment_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -778,6 +884,10 @@ namespace MainService.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("deleted_on");
 
+                    b.Property<string>("Descriptiion")
+                        .HasColumnType("text")
+                        .HasColumnName("descriptiion");
+
                     b.Property<int?>("DistrictId")
                         .HasColumnType("integer")
                         .HasColumnName("district_id");
@@ -791,9 +901,17 @@ namespace MainService.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
 
+                    b.Property<int>("EmployerStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("employer_status");
+
                     b.Property<string>("FullName")
                         .HasColumnType("text")
                         .HasColumnName("full_name");
+
+                    b.Property<bool>("IsOnboarded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_onboarded");
 
                     b.Property<Guid>("LastModifiedBy")
                         .HasColumnType("uuid")
@@ -985,7 +1103,7 @@ namespace MainService.Migrations
                     b.Navigation("Recruitment");
                 });
 
-            modelBuilder.Entity("MainService.Domain.Models.Message", b =>
+            modelBuilder.Entity("MainService.Domain.Models.MeetingMessage", b =>
                 {
                     b.HasOne("MainService.Domain.Models.Meeting", "Meeting")
                         .WithMany("Messages")
@@ -996,23 +1114,34 @@ namespace MainService.Migrations
                     b.Navigation("Meeting");
                 });
 
-            modelBuilder.Entity("MainService.Domain.Models.RecruitmentTag", b =>
+            modelBuilder.Entity("MainService.Domain.Models.Recruitment", b =>
                 {
+                    b.HasOne("MainService.Domain.Models.Profession", "Profession")
+                        .WithMany()
+                        .HasForeignKey("ProfessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profession");
+                });
+
+            modelBuilder.Entity("MainService.Domain.Models.RecruitmentKeyword", b =>
+                {
+                    b.HasOne("MainService.Domain.Models.Keyword", "Keyword")
+                        .WithMany()
+                        .HasForeignKey("KeywordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MainService.Domain.Models.Recruitment", "Recruitment")
-                        .WithMany("RecruitmentTags")
+                        .WithMany("RecruitmentKeywords")
                         .HasForeignKey("RecruitmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MainService.Domain.Models.Tag", "Tag")
-                        .WithMany()
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Keyword");
 
                     b.Navigation("Recruitment");
-
-                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("MainService.Domain.Models.Streaming.RoomUser", b =>
@@ -1139,7 +1268,7 @@ namespace MainService.Migrations
                 {
                     b.Navigation("Meetings");
 
-                    b.Navigation("RecruitmentTags");
+                    b.Navigation("RecruitmentKeywords");
 
                     b.Navigation("UserRecruitments");
                 });

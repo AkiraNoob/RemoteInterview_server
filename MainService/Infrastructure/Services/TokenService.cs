@@ -29,7 +29,7 @@ public class TokenService(
     private readonly ApplicationDbContext _dbContext = dbContext;
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-    public async Task<TokenDTO> GetTokenAsync(TokenRequest request, CancellationToken cancellationToken)
+    public async Task<LoginTokenDTO> GetTokenAsync(TokenRequest request, CancellationToken cancellationToken)
     {
         var user = await _dbContext.Users.FilterByUserIdentifier(request.Email).FirstOrDefaultAsync(cancellationToken)
                         ?? throw new NotFoundException("User not found");
@@ -45,7 +45,9 @@ public class TokenService(
             throw new UnauthorizedException("Invalid password");
         }
 
-        return await GenerateTokens(user);
+        var tokenDto = await GenerateTokens(user);
+
+        return new LoginTokenDTO(Token: tokenDto.Token, RefreshToken: tokenDto.RefreshToken, RefreshTokenExpiryTime: tokenDto.RefreshTokenExpiryTime, IsOnboarded: user.IsOnboarded, UserId: user.Id);
     }
     public async Task<TokenDTO> RefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken)
     {

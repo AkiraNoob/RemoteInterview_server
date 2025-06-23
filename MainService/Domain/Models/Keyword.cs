@@ -2,7 +2,7 @@
 
 namespace MainService.Domain.Models;
 
-public class Tag : AuditableEntity, IAggregateRoot
+public class Keyword : AuditableEntity, IAggregateRoot
 {
     public string Name {  get; set; }
 }
