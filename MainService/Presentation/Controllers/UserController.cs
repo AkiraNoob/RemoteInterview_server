@@ -5,6 +5,7 @@ using MainService.Application.Slices.UserSlice.Interfaces;
 using MainService.Domain.Authorization;
 using MainService.Domain.Enums;
 using MainService.Infrastructure.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +24,7 @@ public class UserController(IUserService userService, ICurrentUser currentUser, 
 
         return Ok(await userService.UpdateUserInfoAsync(request, cancellationToken));
     }
-
+    [AllowAnonymous]
     [HttpGet("{id}")]
     [EndpointDescription("Get user details by Id.")]
     public async Task<UserDetailDTO> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -61,5 +62,4 @@ public class UserController(IUserService userService, ICurrentUser currentUser, 
         var result = await userService.RegisterCompanyAsync(id.ToString(), cancellationToken);
         return Ok(result);
     }
-
 }

@@ -1,5 +1,6 @@
 ﻿using MainService.Domain.Contracts;
 using MainService.Domain.Enums;
+using MainService.Domain.Models.Streaming;
 
 namespace MainService.Domain.Models;
 
@@ -15,4 +16,5 @@ public class Meeting : AuditableEntity, IAggregateRoot
     public virtual Recruitment Recruitment { get; set; }
     public virtual ICollection<UserMeeting> UserMeetings { get; set; }
     public virtual ICollection<MeetingMessage> Messages { get; set; }
+    public virtual Room Room { get; set; }
 }

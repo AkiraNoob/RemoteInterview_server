@@ -10,7 +10,7 @@ public class GetListMeetingInvitationSpec : Specification<UserMeeting>
     {
         Query
             .Include(x => x.Meeting)
-            .ThenInclude(x => x.Recruitment)
+                .ThenInclude(x => x.Recruitment)
             .Where(x => x.UserId == userId && x.Status == Domain.Enums.UserMeetingStatusEnum.Pending && x.Role == Domain.Enums.MeetingRoleEnum.Guest);
     }
 }

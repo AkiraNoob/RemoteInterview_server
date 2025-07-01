@@ -47,6 +47,8 @@ public class CreateMeetingRequestHandler(
             Title = request.Title,
         };
 
+        await _meetingRepository.AddAsync(meeting, cancellationToken);
+
         var userMeetings = new List<UserMeeting>
         {
             new()
@@ -58,19 +60,21 @@ public class CreateMeetingRequestHandler(
             }
         };
 
-        foreach (var userId in request.VisitorIds)
+        if(request.VisitorIds != null && request.VisitorIds.Count > 0)
         {
-            userMeetings.Add(new()
+            foreach (var userId in request.VisitorIds)
             {
-                MeetingId = meeting.Id,
-                UserId = userId,
-                Role = Domain.Enums.MeetingRoleEnum.Guest,
-            });
+                userMeetings.Add(new()
+                {
+                    MeetingId = meeting.Id,
+                    UserId = userId,
+                    Role = Domain.Enums.MeetingRoleEnum.Guest,
+                });
+            }
+
+            await _userMeetingRepository.AddRangeAsync(userMeetings, cancellationToken);
         }
 
-        await _meetingRepository.AddAsync(meeting, cancellationToken);
-        await _userMeetingRepository.AddRangeAsync(userMeetings, cancellationToken);
-        
         return meeting.Adapt<ShortenMeetingDTO>();
     }
 }

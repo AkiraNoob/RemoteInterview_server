@@ -12,8 +12,7 @@ public class RecruitmentMapping : IRegister
         config.NewConfig<Recruitment, RecruitmentDTO>()
             .Map(dest => dest.TimeStamp, src => src.CreatedOn)
             .Map(dest => dest.NumberOfApplicant, src => src.UserRecruitments.Count)
-            .Map(dest => dest.ProfessionName, src => src.Profession.Name)
-            ;
+            .Map(dest => dest.ProfessionName, src => src.Profession.Name);
 
         config.NewConfig<UpdateRecruitmentRequest, Recruitment>().IgnoreNullValues(true);
         config.NewConfig<UpdateRecruitmentDTO, UpdateRecruitmentRequest>();

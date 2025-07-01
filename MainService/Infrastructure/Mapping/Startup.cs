@@ -11,6 +11,8 @@ public static class Startup
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan(Assembly.GetExecutingAssembly());
 
+        TypeAdapterConfig.GlobalSettings.Default.PreserveReference(true);
+
         services.AddSingleton(TypeAdapterConfig.GlobalSettings)
                 .AddScoped<IMapper, ServiceMapper>();
         return services;

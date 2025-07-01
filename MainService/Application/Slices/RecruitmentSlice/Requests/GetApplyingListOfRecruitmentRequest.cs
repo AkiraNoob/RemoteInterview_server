@@ -20,7 +20,7 @@ public class GetApplyingListOfRecruitmentRequest : SimplePaginationFilter, IRequ
     public UserRecruitmentStatusEnum? Status { get; set; } = null;
 }
 
-public class GetApplyingListOfRecruitmentRequestHandler(IRepository<UserRecruitment> userRecruitmentRepository, IRepository<File> fileRepository, IUserService userService)
+public class GetApplyingListOfRecruitmentRequestHandler(IRepository<UserRecruitment> userRecruitmentRepository, IUserService userService)
     : IRequestHandler<GetApplyingListOfRecruitmentRequest, PaginationResponse<RecruitmentApplyingResultDTO>>
 {
     private readonly IUserService _userService = userService;
@@ -29,36 +29,17 @@ public class GetApplyingListOfRecruitmentRequestHandler(IRepository<UserRecruitm
     public async Task<PaginationResponse<RecruitmentApplyingResultDTO>> Handle(GetApplyingListOfRecruitmentRequest request, CancellationToken cancellationToken)
     {
         var applyingList = await _userRecruitmentRepository.ListAsync(new GetUserRecuitmentByRecruimentIdSpec(request), cancellationToken);
-
         var count = await _userRecruitmentRepository.CountAsync(new GetUserRecuitmentByRecruimentIdSpec(request), cancellationToken);
 
-        //var userList = await _userService.GetListUsersAsync(applyingList.ConvertAll(x => x.UserId).Distinct(), cancellationToken);
+        var userList = await _userService.GetListUsersAsync(applyingList.Select(x => x.UserId).Distinct().ToList(), cancellationToken);
 
-        var applyingListResult = new List<RecruitmentApplyingResultDTO>();
-
-        foreach (var item in applyingList)
+        var applyingListResult = applyingList.Adapt<List<RecruitmentApplyingResultDTO>>().Select(x =>
         {
-            //var user = userList.Where(u => u.Id == item.UserId.ToString()).FirstOrDefault();
-
-            var user = await _userService.GetUserDetailAsync(item.UserId.ToString(), cancellationToken);
-
-            var file = await fileRepository.FirstOrDefaultAsync(new GetCVSpec(item.FileId), cancellationToken);
-
-            var result = item.Adapt<RecruitmentApplyingResultDTO>();
-            result.User = user.Adapt<ShortenUserDetailDTO>();
-            result.CV = file.Adapt<FileDTO>();
-
-            applyingListResult.Add(result);
-        }
+            var user = userList.Where(u => u.Id == x.UserId.ToString()).FirstOrDefault();
+            x.User = user.Adapt<ShortenUserDetailDTO>();
+            return x;
+        }).ToList();
 
         return new PaginationResponse<RecruitmentApplyingResultDTO>(applyingListResult, count, request.PageNumber, request.PageSize);
-    }
-}
-
-public class GetCVSpec : Specification<File>
-{
-    public GetCVSpec(Guid fileId)
-    {
-        Query.Where(u => u.Id == fileId);
     }
 }

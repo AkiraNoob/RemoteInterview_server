@@ -72,38 +72,14 @@ public class UserService(
             .Where(x => x.Id == userId)
             .FirstOrDefaultAsync(cancellationToken) ?? throw new NotFoundException("User not found");
 
-
         UserDetailDTO response = user.Adapt<UserDetailDTO>();
-        if (user.CompanyRegistrationImageId != null)
-        {
-            var image = await db.File.FirstOrDefaultAsync(x => x.Id == user.CompanyRegistrationImageId, cancellationToken)
-                ?? throw new NotFoundException("Company registration image not found");
-
-            response.CompanyRegistrationImage = new Application.Slices.FileSlice.DTOs.FileDTO(
-            image.Id,
-           image.FileName,
-            image.FileUrl,
-            image.FileType);
-        }
-
-        if (user.AvatarId != null)
-        {
-            var image = await db.File.FirstOrDefaultAsync(x => x.Id == user.CompanyRegistrationImageId, cancellationToken)
-               ?? throw new NotFoundException("Company registration image not found");
-
-            response.Avatar = new Application.Slices.FileSlice.DTOs.FileDTO(
-            image.Id,
-           image.FileName,
-            image.FileUrl,
-            image.FileType);
-        }
 
         return response;
     }
 
     public async Task<ICollection<UserDetailDTO>> GetListUsersAsync(IEnumerable<Guid> listIds, CancellationToken cancellationToken = default)
     {
-        var stringList = listIds.Adapt<string>();
+        var stringList = listIds.Select(x => x.ToString()).ToList();
 
         return await db.Users
             .Include(x => x.Avatar)
@@ -173,9 +149,7 @@ public class UserService(
 
         if (payload.Avatar != null)
         {
-            var file = new Domain.Models.File();
-            var result = await storageService.UploadFileAsync(payload.Avatar, file.Id.ToString(), cancellationToken);
-            result.Adapt(file);
+            var file = await storageService.UploadFileAsync(payload.Avatar, cancellationToken);
 
             await db.File.AddAsync(file, cancellationToken);
 
@@ -191,9 +165,7 @@ public class UserService(
                 throw new BadRequestException("User must be in Company role to upload company registration image.");
             }
 
-            var file = new Domain.Models.File();
-            var result = await storageService.UploadFileAsync(payload.CompanyRegistrationImage, file.Id.ToString(), cancellationToken);
-            result.Adapt(file);
+            var file = await storageService.UploadFileAsync(payload.CompanyRegistrationImage, cancellationToken);
 
             await db.File.AddAsync(file, cancellationToken);
 
@@ -201,69 +173,15 @@ public class UserService(
         }
 
         if (payload.CV != null)
-        {
-            var file = new Domain.Models.File();
-            var result = await storageService.UploadFileAsync(payload.CV, file.Id.ToString(), cancellationToken);
-            result.Adapt(file);
-
-            await db.File.AddAsync(file, cancellationToken);
-
-            user.CVId = file.Id;
-        }
-
-        await userManager.UpdateAsync(user);
-        await db.SaveChangesAsync(cancellationToken);
-
-        return Result.Success("Success");
-    }
-
-    public async Task<Result<string>> UpdateUserInfoAsync(UpdateUserInfoDTO payload, IFormFile companyImage, CancellationToken cancellationToken)
-    {
-        var user = await userManager.FindByIdAsync(payload.UserId) ?? throw new NotFoundException("User not found");
-
-        if (!user.IsOnboarded)
-        {
-            user.IsOnboarded = true;
-        }
-
-        payload.Adapt(user);
-
-        //user.Update(payload);
-
-        if (payload.Avatar != null)
-        {
-            var file = new Domain.Models.File();
-            var result = await storageService.UploadFileAsync(payload.Avatar, file.Id.ToString(), cancellationToken);
-            result.Adapt(file);
-
-            await db.File.AddAsync(file, cancellationToken);
-
-            user.AvatarId = file.Id;
-        }
-
-        if (companyImage != null)
         {
             var userRoles = await userManager.GetRolesAsync(user);
 
-            if (!userRoles.Contains(FSHRoles.Company))
+            if (userRoles.Contains(FSHRoles.Company))
             {
-                throw new BadRequestException("User must be in Company role to upload company registration image.");
+                throw new BadRequestException("User has role as Company cannot upload a CV.");
             }
 
-            var file = new Domain.Models.File();
-            var result = await storageService.UploadFileAsync(companyImage, file.Id.ToString(), cancellationToken);
-            result.Adapt(file);
-
-            await db.File.AddAsync(file, cancellationToken);
-
-            user.CompanyRegistrationImageId = file.Id;
-        }
-
-        if (payload.CV != null)
-        {
-            var file = new Domain.Models.File();
-            var result = await storageService.UploadFileAsync(payload.CV, file.Id.ToString(), cancellationToken);
-            result.Adapt(file);
+            var file = await storageService.UploadFileAsync(payload.CV,  cancellationToken);
 
             await db.File.AddAsync(file, cancellationToken);
 
@@ -275,7 +193,6 @@ public class UserService(
 
         return Result.Success("Success");
     }
-
 
     public async Task<Result<string>> RegisterCompanyAsync(string userId, CancellationToken cancellationToken)
     {

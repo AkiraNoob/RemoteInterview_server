@@ -16,6 +16,13 @@ public record MailRequest
         AttachmentData = attachmentData ?? new Dictionary<string, byte[]>();
         Headers = headers ?? new Dictionary<string, string>();
     }
+    public MailRequest(List<string> to, string subject, string body, string from)
+    {
+        To = to;
+        Subject = subject;
+        Body = body;
+        From = from;
+    }
 
     public List<string> To { get; set; }
 
@@ -31,11 +38,11 @@ public record MailRequest
 
     public string? ReplyToName { get; }
 
-    public List<string> Bcc { get; }
+    public List<string> Bcc { get; } = [];
 
-    public List<string> Cc { get; }
+    public List<string> Cc { get; } = [];
 
-    public IDictionary<string, byte[]> AttachmentData { get; }
+    public IDictionary<string, byte[]> AttachmentData { get; } = default!;
 
-    public IDictionary<string, string> Headers { get; }
+    public IDictionary<string, string> Headers { get; } = default!;
 }

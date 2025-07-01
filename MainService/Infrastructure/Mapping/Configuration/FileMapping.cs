@@ -14,5 +14,8 @@ public class FileMapping : IRegister
         config.NewConfig<UploadFileResultDTO, Domain.Models.File>()
             .Map(dest => dest.Id, src => src.FilePublicId)
             .IgnoreNullValues(true);
+
+        config.NewConfig<Domain.Models.File, FileDTO>()
+            .Map(dest => dest.FileId, src => src.Id);
     }
 }

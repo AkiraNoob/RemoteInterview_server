@@ -11,13 +11,7 @@ public class UserRecruitmentMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<UserRecruitment, RecruitmentApplyingResultDTO>()
-              .Map(dest => dest.CV, src => new FileDTO(
-                  src.AppliedCv.Id,
-                  src.AppliedCv.FileName,
-                  src.AppliedCv.FileUrl,
-                  src.AppliedCv.FileType
-                  ));
+        config.NewConfig<UserRecruitment, RecruitmentApplyingResultDTO>();
     }
 }
 

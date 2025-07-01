@@ -10,5 +10,6 @@ public class RoomConfig : IEntityTypeConfiguration<Room>
     public void Configure(EntityTypeBuilder<Room> builder)
     {
         builder.HasMany(x => x.Users).WithOne(x => x.Room).HasForeignKey(x => x.RoomId);
+        builder.HasOne(x => x.Meeting).WithMany(x => x.Rooms).HasForeignKey(x => x.MeetingId);
     }
 }

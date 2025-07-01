@@ -56,10 +56,7 @@ public class ApplyRecruitmentHandler(
         {
             if (request.CV != null)
             {
-                var file = new File();
-                var result = await _storageService.UploadFileAsync(request.CV, file.Id.ToString(), cancellationToken);
-
-                result.Adapt(file);
+                var file = await _storageService.UploadFileAsync(request.CV,  cancellationToken);
 
                 await _fileRepository.AddAsync(file, cancellationToken);
                 await _fileRepository.SaveChangesAsync(cancellationToken);

@@ -14,6 +14,5 @@ public interface IUserService : IScopedService
     Task<ICollection<UserDetailDTO>> GetListUsersAsync(IEnumerable<string> listEmails, CancellationToken cancellationToken = default);
     Task<Result<string>> CreateUserAsync(CreateUserDTO payload, CancellationToken cancellationToken);
     Task<Result<string>> UpdateUserInfoAsync(UpdateUserInfoDTO payload, CancellationToken cancellationToken);
-    Task<Result<string>> UpdateUserInfoAsync(UpdateUserInfoDTO payload, IFormFile companyImage, CancellationToken cancellationToken);
     Task<Result<string>> RegisterCompanyAsync(string userId, CancellationToken cancellationToken);
 }

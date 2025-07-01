@@ -65,7 +65,5 @@ public class MeetingController(ApplicationDbContext applicationDbContext) : Vers
     [EndpointDescription("Get all pending meeting invitation.")]
     public async Task<ICollection<MeetingInvitationDTO>> StartMeetingAysnc(CancellationToken cancellationToken)
     {
-        var room = new Room();
-        await applicationDbContext.Room.Add
     }
 }

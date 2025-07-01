@@ -3,8 +3,10 @@ using CloudinaryDotNet.Actions;
 using MainService.Application.Exceptions;
 using MainService.Application.Slices.FileSlice.DTOs;
 using MainService.Application.Slices.FileSlice.Interfaces;
+using Mapster;
 using Microsoft.Extensions.Options;
 using Serilog;
+using File = MainService.Domain.Models.File;
 
 namespace MainService.Infrastructure.Storage;
 
@@ -24,20 +26,22 @@ public class StorageService : IStorageService
         _cloudinary = new Cloudinary(account);
     }
 
-    public async Task<UploadFileResultDTO> UploadFileAsync(IFormFile file, string publicId, CancellationToken cancellationToken = default)
+    public async Task<File> UploadFileAsync(IFormFile file, CancellationToken cancellationToken = default)
     {
         if (file.Length <= 0)
         {
             throw new InternalServerException("File has been corrupted.");
         };
 
+        var entity = new File();
+
         await using var stream = file.OpenReadStream();
 
-        var uploadParams = new ImageUploadParams
+        var uploadParams = new RawUploadParams
         {
             File = new FileDescription(file.FileName, stream),
-            PublicId = publicId,
-            Overwrite = true
+            PublicId = entity.Id.ToString(),
+            Overwrite = true,
         };
 
         var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -47,12 +51,10 @@ public class StorageService : IStorageService
             throw new Exception(uploadResult.Error.Message);
         }
 
-        return new UploadFileResultDTO
-        {
-            FileName = file.FileName,
-            FileUrl = uploadResult.SecureUrl.ToString(),
-            FilePublicId = publicId,
-            FileType = uploadResult.Type,
-        };
+        entity.FileName = file.FileName; ;
+        entity.FileUrl = uploadResult.SecureUrl.ToString();
+        entity.FileType = uploadResult.Type;
+
+        return entity;
     }
 }

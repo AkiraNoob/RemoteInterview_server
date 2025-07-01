@@ -11,6 +11,6 @@ public class RoomMapping : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<Room, RoomDTO>()
-              .Map(dest => dest.Users, src => src.Users.Select(x => new UserToConnectionIdDTO(x.UserId, x.ConnectionId)).ToList<UserToConnectionIdDTO>());
+              .Map(dest => dest.Users, src => src.Users.Select(x => new UserToConnectionIdDTO(x.UserId, x.ConnectionId)).ToList());
     }
 }
