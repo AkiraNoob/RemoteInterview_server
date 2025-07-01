@@ -18,6 +18,7 @@ public class ApplicationUser : IdentityUser, IAuditableEntity
     public DateTime? DeletedOn { get; set; }
     [AllowNull]
     public string? Descriptiion { get; set; }
+    [AllowNull]
     public string? FullName { get; set; }
     [AllowNull]
     public Guid? AvatarId { get; set; }
@@ -46,7 +47,6 @@ public class ApplicationUser : IdentityUser, IAuditableEntity
     public ApplicationUser(CreateUserDTO payload)
     {
         Email = payload.Email;
-        FullName = payload.FullName;
         Password = BCrypt.Net.BCrypt.HashPassword(payload.Password);
         UserName = payload.Email;
 
@@ -54,7 +54,6 @@ public class ApplicationUser : IdentityUser, IAuditableEntity
         PhoneNumberConfirmed = true;
 
         NormalizedEmail = UserConstant.Root.EmailAddress.ToUpperInvariant();
-        NormalizedUserName = payload.FullName.ToUpperInvariant();
     }
     public ApplicationUser(string fullName, string email, string password)
     {

@@ -61,9 +61,9 @@ public class MeetingController(ApplicationDbContext applicationDbContext) : Vers
         return await Mediator.Send(new GetListMeetingInvitationRequest(), cancellationToken);
     }
 
-    [HttpPost("{meetingId:guid}/start")]
-    [EndpointDescription("Get all pending meeting invitation.")]
-    public async Task<ICollection<MeetingInvitationDTO>> StartMeetingAysnc(CancellationToken cancellationToken)
-    {
-    }
+    //[HttpPost("{meetingId:guid}/start")]
+    //[EndpointDescription("Get all pending meeting invitation.")]
+    //public async Task<ICollection<MeetingInvitationDTO>> StartMeetingAysnc(CancellationToken cancellationToken)
+    //{
+    //}
 }

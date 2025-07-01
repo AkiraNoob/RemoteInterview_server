@@ -11,11 +11,15 @@ public class CreateRoomRequest : IRequest<string>
 
 public class CreateRoomRequestHandler(IRepository<Room> roomRepository) : IRequestHandler<CreateRoomRequest, string>
 {
-    public Task<string> Handle(CreateRoomRequest request, CancellationToken cancellationToken)
+    public async Task<string> Handle(CreateRoomRequest request, CancellationToken cancellationToken)
     {
-        roomRepository.AddAsync(new Room
+        var room = new Room
         {
             MeetingId = request.MeetingId,
-        }, cancellationToken);
+        };
+
+        await roomRepository.AddAsync(room, cancellationToken);
+
+        return room.Id.ToString();
     }
 }
